@@ -3,6 +3,7 @@ package classique;
 public class Hunter extends Player {
 
     public Hunter() {
+        super();
     }
 
     public Cell chooseMove(Grid grid, Player Player) {

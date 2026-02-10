@@ -6,7 +6,7 @@
         private Cell[][] cells;
         private Player player;
         private Player hunter;
-
+        private enum Direction {N, S, W, E}
 
         public Grid() {
             cells = new Cell[width][height];
@@ -42,12 +42,25 @@
         }
 
         public boolean isInside(int x, int y) {
-            // TODO implement here
-            return false;
+            return x > -1 && x < width && y > -1 && y < height;
         }
 
         public Cell getCell(int x, int y) {
             return cells[x][y];
+        }
+
+        public <Direction> availableMoves(Player player) {
+            Cell pos = player.getPosition();
+            int posX = pos.getX();
+            int posY = pos.getY();
+        }
+
+        public void move(Player player, Direction direction) {
+            Cell oldCell = player.getPosition();
+            Cell newCell = player.getPosition();
+            oldCell.setOccupiedBy(null);
+            newCell.setOccupiedBy(player);
+            player.setPosition(newCell);
         }
 
         @Override
