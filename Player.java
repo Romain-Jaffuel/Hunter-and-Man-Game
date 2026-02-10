@@ -20,6 +20,4 @@ public class Player {
         energy = 100;
         position = null;
     }
-
-
 }

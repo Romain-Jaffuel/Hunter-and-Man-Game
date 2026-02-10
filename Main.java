@@ -1,5 +1,8 @@
 package classique;
 
+import java.util.EnumSet;
+import java.util.Scanner;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -17,5 +20,30 @@ public class Main {
         System.out.println(g);
 
         System.out.println("Hunter's energy : "+hunter.getEnergy()+"\nPlayer's energy : "+player.getEnergy());
+
+        EnumSet<Grid.Direction> moves = g.availableMoves(player);
+        System.out.println("Available moves: " + moves);
+
+        Grid.Direction chosen = null;
+        Scanner d = new Scanner(System.in);
+
+        while (chosen == null) {
+            System.out.print("Choose direction: ");
+            String choice = d.nextLine().trim().toUpperCase();
+
+            try {
+                Grid.Direction tmp = Grid.Direction.valueOf(choice);
+                if (moves.contains(tmp)) {
+                    chosen = tmp;
+                } else {
+                    System.out.println("Direction not allowed from this position.");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input. Use N, S, E or W.");
+            }
+        }
+
+        g.move(player, chosen);
+        System.out.println(g);
     }
 }

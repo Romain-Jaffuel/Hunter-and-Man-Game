@@ -1,12 +1,15 @@
     package classique;
 
+    import java.util.EnumSet;
+    import java.util.Scanner;
+
     public class Grid {
         private int width = 8;
         private int height = 8;
         private Cell[][] cells;
         private Player player;
         private Player hunter;
-        private enum Direction {N, S, W, E}
+        public enum Direction {N, S, W, E}
 
         public Grid() {
             cells = new Cell[width][height];
@@ -49,18 +52,45 @@
             return cells[x][y];
         }
 
-        public <Direction> availableMoves(Player player) {
+        public EnumSet<Direction> availableMoves(Player player) {
             Cell pos = player.getPosition();
             int posX = pos.getX();
             int posY = pos.getY();
+            EnumSet<Direction> moves = EnumSet.allOf(Direction.class);
+            if (posX == 0) {
+                moves.remove(Direction.W);
+            }
+            if (posX == width - 1) {
+                moves.remove(Direction.E);
+            }
+            if (posY == 0) {
+                moves.remove(Direction.N);
+            }
+            if (posY == height - 1) {
+                moves.remove(Direction.S);
+            }
+            return moves;
         }
 
         public void move(Player player, Direction direction) {
             Cell oldCell = player.getPosition();
-            Cell newCell = player.getPosition();
+            Cell nextCell = null;
+
+            if (direction == Direction.W) {
+                nextCell = getCell(oldCell.getX() - 1, oldCell.getY());
+            }
+            else if (direction == Direction.E) {
+                nextCell = getCell(oldCell.getX() + 1, oldCell.getY());
+            }
+            else if (direction == Direction.N) {
+                nextCell = getCell(oldCell.getX(), oldCell.getY() - 1);
+            }
+            else if (direction == Direction.S) {
+                nextCell = getCell(oldCell.getX(), oldCell.getY() + 1);
+            }
             oldCell.setOccupiedBy(null);
-            newCell.setOccupiedBy(player);
-            player.setPosition(newCell);
+            nextCell.setOccupiedBy(player);
+            player.setPosition(nextCell);
         }
 
         @Override
