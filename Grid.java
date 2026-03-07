@@ -1,12 +1,14 @@
     package classique;
 
     import java.util.EnumSet;
+    import java.util.Random;
     import java.util.Scanner;
 
     public class Grid {
         private int width = 8;
         private int height = 8;
         private Cell[][] cells;
+        private Cell target;
         private Player player;
         private Player hunter;
         public enum Direction {N, S, W, E}
@@ -50,6 +52,16 @@
 
         public Cell getCell(int x, int y) {
             return cells[x][y];
+        }
+
+        public void setTarget() {
+            Random rand = new Random();
+            int posX = rand.nextInt(width);
+            int posY = rand.nextInt(height);
+            target = cells[posX][posY];
+        }
+        public Cell getTarget() {
+            return target;
         }
 
         public EnumSet<Direction> availableMoves(Player player) {
@@ -104,6 +116,8 @@
                         sb.append('P');
                     } else if (cells[x][y].hasItem()) {
                         sb.append('I');
+                    } else if (cells[x][y] == target) {
+                        sb.append('T');
                     } else {
                         sb.append('.');
                     }

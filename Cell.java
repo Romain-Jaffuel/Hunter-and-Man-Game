@@ -4,8 +4,8 @@ public class Cell {
 
     private int x;
     private int y;
-    private Item item;
     private Player occupiedBy;
+    private Item item;
 
     public int getX() {
         return x;
