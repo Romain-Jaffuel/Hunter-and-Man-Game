@@ -9,8 +9,6 @@
         private int height = 8;
         private Cell[][] cells;
         private Cell target;
-        private Player player;
-        private Player hunter;
         public enum Direction {N, S, W, E}
 
         public Grid() {
@@ -30,22 +28,6 @@
             return height;
         }
 
-        public Player getPlayer() {
-            return player;
-        }
-
-        public void setPlayer(Player player) {
-            this.player = player;
-        }
-
-        public Player getHunter() {
-            return hunter;
-        }
-
-        public void setHunter(Player hunter) {
-            this.hunter = hunter;
-        }
-
         public boolean isInside(int x, int y) {
             return x > -1 && x < width && y > -1 && y < height;
         }
@@ -62,6 +44,40 @@
         }
         public Cell getTarget() {
             return target;
+        }
+
+        public void setItem(boolean isBonus) {
+            Random rand = new Random();
+            int posX;
+            int posY;
+            Cell cell;
+
+            do {
+                posX = rand.nextInt(width);
+                posY = rand.nextInt(height);
+                cell = cells[posX][posY];
+            } while (cell.hasItem() || cell.getOccupiedBy() != null || cell == target);
+
+            Item item = new Item();
+
+            if (isBonus) {
+                item.setEnergyDelta(rand.nextInt(30) + 1);
+                item.setBonus(true);
+            } else {
+                item.setEnergyDelta(-(rand.nextInt(20) + 1));
+                item.setBonus(false);
+            }
+
+            cell.setItem(item);
+        }
+
+        public void setItems() {
+            for (int i = 0; i < 3; i++) {
+                setItem(true);
+            }
+            for (int i = 0; i < 3; i++) {
+                setItem(false);
+            }
         }
 
         public EnumSet<Direction> availableMoves(Player player) {

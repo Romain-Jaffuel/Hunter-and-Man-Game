@@ -21,6 +21,7 @@ public class Game {
         g.getCell(g.getWidth() - 1, g.getHeight() - 1).setOccupiedBy(hunter);
 
         g.setTarget();
+        g.setItems();
         System.out.println(g);
     }
 
@@ -28,6 +29,18 @@ public class Game {
         System.out.println("Turn : "+turn+"\nHunter's energy : "+hunter.getEnergy()+"\nPlayer's energy : "+player.getEnergy());
         EnumSet<Grid.Direction> moves = g.availableMoves(player);
         System.out.println("Available moves: " + moves);
+    }
+    private void applyItemEffect(Player player) {
+        Cell curentCell = player.getPosition();
+        if (curentCell.hasItem()) {
+            Item item = curentCell.getItem();
+            player.setEnergy(player.getEnergy() + item.getEnergyDelta());
+            boolean isBonus = item.isBonus();
+            curentCell.removeItem();
+            if (!isBonus) {
+                g.setItem(false);
+            }
+        }
     }
 
     public void playerTurn() {
@@ -51,22 +64,45 @@ public class Game {
         }
 
         g.move(player, chosen);
+        applyItemEffect(player);
+        player.setEnergy(player.getEnergy() - 10);
         System.out.println(g);
     }
 
     public void hunterTurn() {
+        Grid.Direction direction = hunter.chooseMove(g);
 
+        if (direction != null) {
+            g.move(hunter, direction);
+        }
+        applyItemEffect(hunter);
+
+        if (hunter.canEliminate(player)) {
+            hunter.eliminate(player);
+            System.out.println("The hunter eliminated the player.");
+        }
     }
 
     public void checkGameOver() {
         if (player.getEnergy() <= 0) {
             gameOver = true;
+            System.out.println("Game Over !\nPlayer out of Energy");
         }
         if (player.getPosition() == g.getTarget()) {
             gameOver = true;
+            System.out.println("Victory !\nPlayer reached the target");
+        }
+        if (hunter.getEnergy() <= 0) {
+            gameOver = true;
+            System.out.println("Victory !\nHunter out of Energy");
+        }
+        if (hunter.getPosition() ==  g.getTarget()) {
+            gameOver = true;
+            System.out.println("Game Over !\nHunter reached  the target");
         }
         if (turn > 100) {
             gameOver = true;
+            System.out.println("Game Over !\nTurn exceeds 100");
         }
     }
 
@@ -79,6 +115,5 @@ public class Game {
             checkGameOver(); //check fin de jeu, energie/chasseur
             this.turn++;
         }
-        System.out.println("Game Over");
     }
 }

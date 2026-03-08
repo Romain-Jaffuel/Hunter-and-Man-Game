@@ -1,7 +1,6 @@
 package classique;
 
 public class Item {
-
     private int energyDelta;
     private boolean isBonus;
 
