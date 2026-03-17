@@ -1,6 +1,6 @@
 package classique;
 
-import java.util.EnumSet;
+import java.util.*;
 
 public class Hunter extends Player {
 

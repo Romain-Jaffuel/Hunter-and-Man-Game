@@ -2,7 +2,6 @@
 
     import java.util.EnumSet;
     import java.util.Random;
-    import java.util.Scanner;
 
     public class Grid {
         private int width = 8;
