@@ -1,0 +1,149 @@
+package classique;
+
+import java.util.EnumSet;
+import java.util.Random;
+
+public class Grid {
+    private static Grid instance; // ← instance unique
+
+    private int width = 8;
+    private int height = 8;
+    private Cell[][] cells;
+    private Cell target;
+    public enum Direction {N, S, W, E}
+
+    private Grid() { // ← constructeur privé
+        cells = new Cell[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                cells[x][y] = new Cell(x, y);
+            }
+        }
+    }
+    
+
+    public static Grid getInstance() {
+        if (instance == null) {
+            instance = new Grid();
+        }
+        return instance;
+    }
+
+    public static void resetInstance() {
+        instance = null;
+    }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public boolean isInside(int x, int y) {
+            return x > -1 && x < width && y > -1 && y < height;
+        }
+
+        public Cell getCell(int x, int y) {
+            return cells[x][y];
+        }
+
+        public void setTarget() {
+            Random rand = new Random();
+            int posX = rand.nextInt(width);
+            int posY = rand.nextInt(height);
+            target = cells[posX][posY];
+        }
+        public Cell getTarget() {
+            return target;
+        }
+
+        public void setItem(boolean isBonus) {
+            Random rand = new Random();
+            int posX;
+            int posY;
+            Cell cell;
+
+            do {
+                posX = rand.nextInt(width);
+                posY = rand.nextInt(height);
+                cell = cells[posX][posY];
+            } while (cell.hasItem() || cell.getOccupiedBy() != null || cell == target);
+
+            cell.setItem(ItemFactory.createItem(isBonus)); // ← remplace tout le bloc if/else
+        }
+
+        public void setItems() {
+            for (int i = 0; i < 3; i++) {
+                setItem(true);
+            }
+            for (int i = 0; i < 3; i++) {
+                setItem(false);
+            }
+        }
+
+        public EnumSet<Direction> availableMoves(Player player) {
+            Cell pos = player.getPosition();
+            int posX = pos.getX();
+            int posY = pos.getY();
+            EnumSet<Direction> moves = EnumSet.allOf(Direction.class);
+            if (posX == 0) {
+                moves.remove(Direction.W);
+            }
+            if (posX == width - 1) {
+                moves.remove(Direction.E);
+            }
+            if (posY == 0) {
+                moves.remove(Direction.N);
+            }
+            if (posY == height - 1) {
+                moves.remove(Direction.S);
+            }
+            return moves;
+        }
+
+        public void move(Player player, Direction direction) {
+            Cell oldCell = player.getPosition();
+            Cell nextCell = null;
+
+            if (direction == Direction.W) {
+                nextCell = getCell(oldCell.getX() - 1, oldCell.getY());
+            }
+            else if (direction == Direction.E) {
+                nextCell = getCell(oldCell.getX() + 1, oldCell.getY());
+            }
+            else if (direction == Direction.N) {
+                nextCell = getCell(oldCell.getX(), oldCell.getY() - 1);
+            }
+            else if (direction == Direction.S) {
+                nextCell = getCell(oldCell.getX(), oldCell.getY() + 1);
+            }
+            oldCell.setOccupiedBy(null);
+            nextCell.setOccupiedBy(player);
+            player.setPosition(nextCell);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (cells[x][y].getOccupiedBy() instanceof Hunter) {
+                        sb.append('H');
+                    } else if (cells[x][y].getOccupiedBy() != null) {
+                        sb.append('P');
+                    } else if (cells[x][y].hasItem()) {
+                        sb.append('I');
+                    } else if (cells[x][y] == target) {
+                        sb.append('T');
+                    } else {
+                        sb.append('.');
+                    }
+                    sb.append(" ");     // ajoute une string
+                }
+                sb.append('\n');    // saute une ligne
+            }
+            return sb.toString();
+        }
+    }
