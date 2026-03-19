@@ -1,0 +1,81 @@
+================================================================
+RÉSUMÉ DÉPLOIEMENT WEB — CHASSEUR & BONHOMME
+================================================================
+ 
+1. CRÉATION DU PROJET SPRING BOOT
+----------------------------------
+- Aller sur start.spring.io
+- Choisir : Maven, Java, Spring Boot 3.5.x
+- Dépendances : Spring Web + Thymeleaf
+- Générer le zip et importer dans Eclipse :
+  File → Import → Maven → Existing Maven Projects
+ 
+2. STRUCTURE AJOUTÉE
+---------------------
+src/main/java/com/jeu/chasseur_bonhomme/
+    Application.java       ← point d'entrée Spring Boot
+    GameController.java    ← endpoints REST (/game/start, /move, /state)
+    GameService.java       ← logique Spring, crée le Game
+    GameStateDTO.java      ← objet JSON envoyé au frontend
+ 
+src/main/resources/static/
+    index.html             ← toute l'interface (HTML + CSS + JS)
+ 
+src/main/resources/
+    application.properties ← config Spring Boot
+ 
+3. COMMUNICATION FRONTEND ↔ BACKEND
+-------------------------------------
+Frontend (index.html)
+    ↓ fetch('/game/move/N')         ← appel HTTP depuis le navigateur
+GameController                      ← reçoit la requête HTTP
+    ↓
+GameService                         ← appelle game.playerTurnWeb()
+    ↓
+Game.java                           ← ta logique Java existante INCHANGÉE
+    ↓ toDTO()
+GameStateDTO                        ← converti en JSON automatiquement
+    ↓
+Frontend                            ← reçoit et affiche la grille
+ 
+4. ENDPOINTS REST
+------------------
+POST /game/start        ← démarre/redémarre une partie
+POST /game/move/{dir}   ← déplace le joueur (N, S, E, W)
+GET  /game/state        ← récupère l'état complet du jeu (grille, énergies, etc.)
+ 
+5. CLASSES AJOUTÉES DANS GAME.JAVA
+------------------------------------
+// Pour le web — sans Scanner
+public void playerTurnWeb(Grid.Direction direction) {
+    EnumSet<Grid.Direction> moves = g.availableMoves(player);
+    if (moves.contains(direction)) {
+        g.move(player, direction);
+        applyItemEffect(player);
+        player.setEnergy(player.getEnergy() - 1);
+    }
+}
+ 
+// Convertit l'état Java en JSON pour le frontend
+public GameStateDTO toDTO() { ... }
+ 
+6. FOG OF WAR
+--------------
+- Le bonhomme ne voit que les cases à distance 3 autour de lui
+- Le chasseur est toujours visible
+- Calculé dans toDTO() :
+  cell.visibleByPlayer = (dist <= 3) || (c.getOccupiedBy() instanceof Hunter);
+- Appliqué dans index.html :
+  if (!cell.visibleByPlayer) { div.classList.add('fog'); return; }
+ 
+7. DÉPLOIEMENT
+---------------
+# Build du jar
+mvn clean package -DskipTests
+ 
+# Lancer le jar
+java -jar target/chasseur-bonhomme-0.0.1-SNAPSHOT.jar
+ 
+# Accéder au jeu
+http://localhost:8080
+ 
